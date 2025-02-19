@@ -1,0 +1,117 @@
+replicaCount: 1
+
+image:
+  repository: rabbitmq
+  tag: "3.12-management-alpine"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+securityContext: {}
+
+rabbitmq:
+  username: user
+  password: password
+  erlangCookie: "SWQOKODSQALRPCLNMEQG"
+  persistence:
+    enabled: true
+    storageClass: ""
+    size: 8Gi
+
+service:
+  type: ClusterIP
+  ports:
+    amqp:
+      port: 5672
+      targetPort: 5672
+      protocol: TCP
+    management:
+      port: 15672
+      targetPort: 15672
+      protocol: TCP
+    epmd:
+      port: 4369
+      targetPort: 4369
+      protocol: TCP
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: rabbitmq.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: 500m
+    memory: 1Gi
+
+livenessProbe:
+  exec:
+    command: ["rabbitmq-diagnostics", "status"]
+  initialDelaySeconds: 60
+  periodSeconds: 30
+  timeoutSeconds: 15
+
+readinessProbe:
+  exec:
+    command: ["rabbitmq-diagnostics", "status"]
+  initialDelaySeconds: 20
+  periodSeconds: 30
+  timeoutSeconds: 15
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+
+persistence:
+  enabled: true
+  storageClass: ""
+  accessMode: ReadWriteOnce
+  size: 8Gi
+
+# Additional volume mounts for the RabbitMQ container
+volumeMounts: []
+  # - name: config-volume
+  #   mountPath: /etc/rabbitmq/conf.d/
+  # - name: definitions-volume
+  #   mountPath: /etc/rabbitmq/definitions.json
+  # - name: plugins-volume
+  #   mountPath: /etc/rabbitmq/enabled_plugins
+
+# Additional volumes to be added to the pod
+volumes: []
+  # - name: config-volume
+  #   configMap:
+  #     name: rabbitmq-config
+  # - name: definitions-volume
+  #   configMap:
+  #     name: rabbitmq-definitions
+  # - name: plugins-volume
+  #   configMap:
+  #     name: rabbitmq-plugins
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

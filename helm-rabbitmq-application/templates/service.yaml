@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "helm-rabbitmq-application.fullname" . }}
+  labels:
+    {{- include "helm-rabbitmq-application.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - name: amqp
+      port: {{ .Values.service.ports.amqp.port }}
+      targetPort: {{ .Values.service.ports.amqp.targetPort }}
+      protocol: {{ .Values.service.ports.amqp.protocol }}
+    - name: management
+      port: {{ .Values.service.ports.management.port }}
+      targetPort: {{ .Values.service.ports.management.targetPort }}
+      protocol: {{ .Values.service.ports.management.protocol }}
+    - name: epmd
+      port: {{ .Values.service.ports.epmd.port }}
+      targetPort: {{ .Values.service.ports.epmd.targetPort }}
+      protocol: {{ .Values.service.ports.epmd.protocol }}
+  selector:
+    {{- include "helm-rabbitmq-application.selectorLabels" . | nindent 4 }}
