@@ -1,31 +1,63 @@
-import schedule
-import threading
-import time
-from flask import Flask
+import pika
+import logging
+import sys
+import argparse
+from argparse import RawTextHelpFormatter
+from time import sleep
 
-scheduler_started = False
+def main():
+    examples = f"{sys.argv[0]} -p 5672 -s rabbitmq -m 'Hello'"
+    parser = argparse.ArgumentParser(
+        formatter_class=RawTextHelpFormatter,
+        description='Run producer.py',
+        epilog=examples
+    )
+    parser.add_argument('-p', '--port', action='store', dest='port',
+                        help='The port to listen on.')
+    parser.add_argument('-s', '--server', action='store', dest='server',
+                        help='The RabbitMQ server.')
+    parser.add_argument('-m', '--message', action='store', dest='message',
+                        help='The message to send', required=False, default='Hello')
+    parser.add_argument('-r', '--repeat', action='store', dest='repeat',
+                        help='Number of times to repeat the message', required=False, default='30')
 
-def task():
-    print('Done task')
+    args = parser.parse_args()
+    if args.port is None:
+        print("Missing required argument: -p/--port")
+        sys.exit(1)
+    if args.server is None:
+        print("Missing required argument: -s/--server")
+        sys.exit(1)
 
-def schedule_task():
-    global scheduler_started
-    if scheduler_started:
-        return
-    scheduler_started = True
+    # sleep a few seconds to allow RabbitMQ server to come up
+    sleep(5)
+    logging.basicConfig(level=logging.INFO)
+    LOG = logging.getLogger(__name__)
 
-    schedule.every(10).seconds.do(task)
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
+    credentials = pika.PlainCredentials('guest', 'guest')
+    parameters = pika.ConnectionParameters(
+        args.server,
+        int(args.port),
+        '/',
+        credentials
+    )
+    connection = pika.BlockingConnection(parameters)
+    channel = connection.channel()
 
-threading.Thread(target=schedule_task, daemon=True).start()
+    q = channel.queue_declare(queue='pc')
+    q_name = q.method.queue
 
-app = Flask(__name__)
+    # Turn on delivery confirmations
+    channel.confirm_delivery()
 
-@app.route('/healthz')
-def healthz():
-    return 'OK!'
+    for i in range(int(args.repeat)):
+        if channel.basic_publish('', q_name, args.message.encode()):
+            LOG.info('Message has been delivered')
+        else:
+            LOG.warning('Message NOT delivered')
+        sleep(2)
+
+    connection.close()
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True, use_reloader=False)
+    main()
