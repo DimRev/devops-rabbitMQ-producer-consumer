@@ -4,6 +4,7 @@ import sys
 import argparse
 from argparse import RawTextHelpFormatter
 from time import sleep
+import os
 
 def main():
     examples = f"{sys.argv[0]} -p 5672 -s rabbitmq -m 'Hello'"
@@ -29,12 +30,15 @@ def main():
         print("Missing required argument: -s/--server")
         sys.exit(1)
 
-    # sleep a few seconds to allow RabbitMQ server to come up
+    # Sleep a few seconds to allow RabbitMQ server to come up
     sleep(5)
     logging.basicConfig(level=logging.INFO)
     LOG = logging.getLogger(__name__)
 
-    credentials = pika.PlainCredentials('guest', 'guest')
+    # Use environment variables if provided, otherwise default to 'user' and 'password'
+    username = os.environ.get("RABBITMQ_DEFAULT_USER", "user")
+    password = os.environ.get("RABBITMQ_DEFAULT_PASS", "password")
+    credentials = pika.PlainCredentials(username, password)
     parameters = pika.ConnectionParameters(
         args.server,
         int(args.port),

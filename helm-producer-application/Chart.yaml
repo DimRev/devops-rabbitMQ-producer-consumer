@@ -1,0 +1,6 @@
+apiVersion: v2
+name: helm-producer-application
+description: A Helm chart for the producer application.
+type: application
+version: 0.1.5
+appVersion: "0.0.3"
