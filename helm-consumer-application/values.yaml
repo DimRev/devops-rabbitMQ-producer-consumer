@@ -1,8 +1,8 @@
 replicaCount: 5
 
 image:
-  repository: dimrev/devops-pjct-producer
-  tag: v0.0.3
+  repository: dimrev/devops-pjct-consumer
+  tag: v0.0.2
   pullPolicy: IfNotPresent
 
 rabbitmq:
@@ -10,10 +10,6 @@ rabbitmq:
   port: "5672"
   username: user
   password: password
-
-producer:
-  message: "Hello"
-  repeat: "30"
 
 resources:
   requests:
