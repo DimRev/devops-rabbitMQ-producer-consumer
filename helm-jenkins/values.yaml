@@ -1,0 +1,13 @@
+replicaCount: 1
+
+image:
+  repository: jenkins/jenkins
+  tag: lts
+  pullPolicy: IfNotPresent
+
+service:
+  type: NodePort    # You can also use ClusterIP or LoadBalancer as needed.
+  port: 8080
+  nodePort: 30000   # Only used if type is NodePort.
+
+resources: {}

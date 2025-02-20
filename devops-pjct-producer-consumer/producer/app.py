@@ -32,7 +32,7 @@ def main():
 
     # Sleep a few seconds to allow RabbitMQ server to come up
     sleep(5)
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     LOG = logging.getLogger(__name__)
 
     # Use environment variables if provided, otherwise default to 'user' and 'password'
