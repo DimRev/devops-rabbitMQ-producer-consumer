@@ -1,16 +1,19 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+      image 'docker:latest'
+      args '-v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
 
     stages {
         stage('Checkout') {
       steps {
-        // Clone the repository using the job's configured SCM
         checkout scm
       }
         }
         stage('Build Docker Image') {
       steps {
-        // Change directory to the consumer folder and build the image
         dir('devops-pjct-producer-consumer/consumer') {
           sh '''
                         VERSION=$(cat version)
@@ -24,17 +27,16 @@ pipeline {
         }
         stage('Push Docker Image') {
       steps {
-        // Use Docker Hub credentials and perform login before pushing
         withCredentials([usernamePassword(credentialsId: 'dockerhub-user', usernameVariable: 'DOCKER_HUB_USER', passwordVariable: 'DOCKER_HUB_PASSWORD')]) {
           dir('devops-pjct-producer-consumer/consumer') {
             sh '''
-              VERSION=$(cat version)
-              echo "Logging into Docker Hub..."
-              docker login -u "$DOCKER_HUB_USER" -p "$DOCKER_HUB_PASSWORD"
-              echo "Pushing docker image version $VERSION..."
-              docker push dimrev/devops-pjct-consumer:$VERSION
-              docker push dimrev/devops-pjct-consumer:latest
-          '''
+                            VERSION=$(cat version)
+                            echo "Logging into Docker Hub..."
+                            docker login -u "$DOCKER_HUB_USER" -p "$DOCKER_HUB_PASSWORD"
+                            echo "Pushing docker image version $VERSION..."
+                            docker push dimrev/devops-pjct-consumer:$VERSION
+                            docker push dimrev/devops-pjct-consumer:latest
+                        '''
           }
         }
       }
