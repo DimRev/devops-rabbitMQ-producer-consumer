@@ -6,7 +6,10 @@ import os
 from argparse import RawTextHelpFormatter
 from time import sleep
 
-print("Starting consumer.py")
+with open('version', 'r') as f:
+    VERSION = f.read().strip()
+    print(f"Starting consumer.py, {VERSION}")
+
 
 def on_message(channel, method_frame, header_frame, body):
     print(method_frame.delivery_tag)

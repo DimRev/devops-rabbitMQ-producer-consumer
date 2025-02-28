@@ -6,7 +6,9 @@ from argparse import RawTextHelpFormatter
 from time import sleep
 import os
 
-print("Starting producer.py")
+with open('version', 'r') as f:
+    VERSION = f.read().strip()
+    print(f"Starting producer.py, {VERSION}")
 
 def main():
     examples = f"{sys.argv[0]} -p 5672 -s rabbitmq -m 'Hello'"

@@ -3,4 +3,4 @@ name: helm-consumer-application
 description: A Helm chart for the consumer application.
 type: application
 version: 0.1.2
-appVersion: "0.0.3"
+appVersion: "0.0.5"

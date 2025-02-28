@@ -3,4 +3,4 @@ name: helm-producer-application
 description: A Helm chart for the producer application.
 type: application
 version: 0.1.7
-appVersion: "0.0.4"
+appVersion: "0.0.6"
