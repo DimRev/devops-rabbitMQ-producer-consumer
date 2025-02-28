@@ -6,6 +6,8 @@ from argparse import RawTextHelpFormatter
 from time import sleep
 import os
 
+print("Starting producer.py")
+
 def main():
     examples = f"{sys.argv[0]} -p 5672 -s rabbitmq -m 'Hello'"
     parser = argparse.ArgumentParser(
